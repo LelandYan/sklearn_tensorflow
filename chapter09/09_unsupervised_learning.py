@@ -194,77 +194,104 @@ minibatch_kmeans.fit(X_mm)
 def load_next_batch(batch_size):
     return X[np.random.choice(len(X),batch_size,replace=False)]
 
-np.random.seed(42)
-k = 5
-n_init = 10
-n_iterations = 100
-batch_size = 100
-init_size = 500  # more data for K-Means++ initialization
-evaluate_on_last_n_iters = 10
+# np.random.seed(42)
+# k = 5
+# n_init = 10
+# n_iterations = 100
+# batch_size = 100
+# init_size = 500  # more data for K-Means++ initialization
+# evaluate_on_last_n_iters = 10
+#
+# best_kmeans = None
 
-best_kmeans = None
-
-for init in range(n_init):
-    minibatch_kmeans = MiniBatchKMeans(n_clusters=k, init_size=init_size)
-    X_init = load_next_batch(init_size)
-    minibatch_kmeans.partial_fit(X_init)
-
-    minibatch_kmeans.sum_inertia_ = 0
-    for iteration in range(n_iterations):
-        X_batch = load_next_batch(batch_size)
-        minibatch_kmeans.partial_fit(X_batch)
-        if iteration >= n_iterations - evaluate_on_last_n_iters:
-            minibatch_kmeans.sum_inertia_ += minibatch_kmeans.inertia_
-
-    if (best_kmeans is None or
-        minibatch_kmeans.sum_inertia_ < best_kmeans.sum_inertia_):
-        best_kmeans = minibatch_kmeans
-
-print(best_kmeans.score(X))
-print(best_kmeans.inertia_)
+# for init in range(n_init):
+#     minibatch_kmeans = MiniBatchKMeans(n_clusters=k, init_size=init_size)
+#     X_init = load_next_batch(init_size)
+#     minibatch_kmeans.partial_fit(X_init)
+#
+#     minibatch_kmeans.sum_inertia_ = 0
+#     for iteration in range(n_iterations):
+#         X_batch = load_next_batch(batch_size)
+#         minibatch_kmeans.partial_fit(X_batch)
+#         if iteration >= n_iterations - evaluate_on_last_n_iters:
+#             minibatch_kmeans.sum_inertia_ += minibatch_kmeans.inertia_
+#
+#     if (best_kmeans is None or
+#         minibatch_kmeans.sum_inertia_ < best_kmeans.sum_inertia_):
+#         best_kmeans = minibatch_kmeans
+#
+# print(best_kmeans.score(X))
+# print(best_kmeans.inertia_)
 
 
 
 from timeit import timeit
 from sklearn.cluster import KMeans
-times = np.empty((100,2))
-inertias = np.empty((100,2))
-for k in range(1,101):
-    kmeans = KMeans(n_clusters=k,random_state=42)
-    minibatch_kmeans = MiniBatchKMeans(n_clusters=k,random_state=42)
-    print("\r{}/{}".format(k, 100), end="")
-    times[k - 1, 0] = timeit("kmeans.fit(X)", number=10, globals=globals())
-    times[k - 1, 1] = timeit("minibatch_kmeans.fit(X)", number=10, globals=globals())
-    inertias[k - 1, 0] = kmeans.inertia_
-    inertias[k - 1, 1] = minibatch_kmeans.inertia_
-
-plt.figure(figsize=(10,4))
-
-plt.subplot(121)
-plt.plot(range(1, 101), inertias[:, 0], "r--", label="K-Means")
-plt.plot(range(1, 101), inertias[:, 1], "b.-", label="Mini-batch K-Means")
-plt.xlabel("$k$", fontsize=16)
-#plt.ylabel("Inertia", fontsize=14)
-plt.title("Inertia", fontsize=14)
-plt.legend(fontsize=14)
-plt.axis([1, 100, 0, 100])
-
-plt.subplot(122)
-plt.plot(range(1, 101), times[:, 0], "r--", label="K-Means")
-plt.plot(range(1, 101), times[:, 1], "b.-", label="Mini-batch K-Means")
-plt.xlabel("$k$", fontsize=16)
-#plt.ylabel("Training time (seconds)", fontsize=14)
-plt.title("Training time (seconds)", fontsize=14)
-plt.axis([1, 100, 0, 6])
-#plt.legend(fontsize=14)
-
-plt.show()
-
-
+# times = np.empty((100,2))
+# inertias = np.empty((100,2))
+# for k in range(1,101):
+#     kmeans = KMeans(n_clusters=k,random_state=42)
+#     minibatch_kmeans = MiniBatchKMeans(n_clusters=k,random_state=42)
+#     print("\r{}/{}".format(k, 100), end="")
+#     times[k - 1, 0] = timeit("kmeans.fit(X)", number=10, globals=globals())
+#     times[k - 1, 1] = timeit("minibatch_kmeans.fit(X)", number=10, globals=globals())
+#     inertias[k - 1, 0] = kmeans.inertia_
+#     inertias[k - 1, 1] = minibatch_kmeans.inertia_
+#
+# plt.figure(figsize=(10,4))
+#
+# plt.subplot(121)
+# plt.plot(range(1, 101), inertias[:, 0], "r--", label="K-Means")
+# plt.plot(range(1, 101), inertias[:, 1], "b.-", label="Mini-batch K-Means")
+# plt.xlabel("$k$", fontsize=16)
+# #plt.ylabel("Inertia", fontsize=14)
+# plt.title("Inertia", fontsize=14)
+# plt.legend(fontsize=14)
+# plt.axis([1, 100, 0, 100])
+#
+# plt.subplot(122)
+# plt.plot(range(1, 101), times[:, 0], "r--", label="K-Means")
+# plt.plot(range(1, 101), times[:, 1], "b.-", label="Mini-batch K-Means")
+# plt.xlabel("$k$", fontsize=16)
+# #plt.ylabel("Training time (seconds)", fontsize=14)
+# plt.title("Training time (seconds)", fontsize=14)
+# plt.axis([1, 100, 0, 6])
+# #plt.legend(fontsize=14)
+#
+# plt.show()
 
 
 
+# kmeans_k3 = KMeans(n_clusters=3,random_state=42)
+# kmeans_k4 = KMeans(n_clusters=8,random_state=42)
+#
+# plot_clusterer_comparison(kmeans_k3,kmeans_k4,X,'$k=3$','$k=4$')
+# plt.show()
 
 
+# kmeans_per_k = [KMeans(n_clusters=k, random_state=42).fit(X)
+#                 for k in range(1, 10)]
+# inertias = [model.inertia_ for model in kmeans_per_k]
+#
+# plt.figure(figsize=(8, 3.5))
+# plt.plot(range(1, 10), inertias, "bo-")
+# plt.xlabel("$k$", fontsize=14)
+# plt.ylabel("Inertia", fontsize=14)
+# plt.annotate('Elbow',
+#              xy=(4, inertias[3]),
+#              xytext=(0.55, 0.55),
+#              textcoords='figure fraction',
+#              fontsize=16,
+#              arrowprops=dict(facecolor='black', shrink=0.1)
+#             )
+# plt.axis([1, 8.5, 0, 1300])
+# plt.show()
+#
+#
+# from sklearn.metrics import silhouette_score
+# silhouette_scores = [silhouette_score(X, model.labels_)
+#                      for model in kmeans_per_k[1:]]
 
+from sklearn.metrics import silhouette_samples
+from matplotlib.ticker import FixedFormatter,FixedLocator
 
