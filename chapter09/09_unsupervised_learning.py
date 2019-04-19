@@ -6,9 +6,9 @@ from sklearn.datasets import load_iris
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 
-data = load_iris()
-X = data.data
-y = data.target
+# data = load_iris()
+# X = data.data
+# y = data.target
 
 # plt.subplot(121)
 # plt.plot(X[y == 0, 2], X[y == 0, 3], "yo", label="Iris-Setosa")
@@ -43,19 +43,22 @@ import numpy as np
 # K-Means
 from sklearn.datasets import make_blobs
 
-blob_centers = np.array([
-    [0.2, 2.3],
-    [-1.5, 2.3],
-    [-2.8, 1.8],
-    [-2.8, 2.8],
-    [-2.8, 1.3]
-])
-blob_std = np.array([0.4, 0.3, 0.1, 0.1, 0.1])
-X,y = make_blobs(n_samples=2000,centers=blob_centers,cluster_std=blob_std,random_state=7)
-def plot_cluster(X,y=None):
-    plt.scatter(X[:,0],X[:,1],c=y,s=1)
-    plt.xlabel('$x_1$',fontsize=14)
-    plt.ylabel('$x_2$',fontsize=14,rotation=0)
+# blob_centers = np.array([
+#     [0.2, 2.3],
+#     [-1.5, 2.3],
+#     [-2.8, 1.8],
+#     [-2.8, 2.8],
+#     [-2.8, 1.3]
+# ])
+# blob_std = np.array([0.4, 0.3, 0.1, 0.1, 0.1])
+# X, y = make_blobs(n_samples=2000, centers=blob_centers, cluster_std=blob_std, random_state=7)
+
+
+def plot_cluster(X, y=None):
+    plt.scatter(X[:, 0], X[:, 1], c=y, s=1)
+    plt.xlabel('$x_1$', fontsize=14)
+    plt.ylabel('$x_2$', fontsize=14, rotation=0)
+
 
 # plt.figure(figsize=(8,4))
 # plot_cluster(X)
@@ -72,6 +75,7 @@ def plot_cluster(X,y=None):
 def plot_data(X):
     plt.plot(X[:, 0], X[:, 1], 'k.', markersize=2)
 
+
 def plot_centroids(centroids, weights=None, circle_color='w', cross_color='k'):
     if weights is not None:
         centroids = centroids[weights > weights.max() / 10]
@@ -82,8 +86,9 @@ def plot_centroids(centroids, weights=None, circle_color='w', cross_color='k'):
                 marker='x', s=50, linewidths=50,
                 color=cross_color, zorder=11, alpha=1)
 
+
 def plot_decision_boundary(clusterer, X, resolution=1000, show_centroids=True,
-                             show_xlabels=True, show_ylabels=True):
+                           show_xlabels=True, show_ylabels=True):
     mins = X.min(axis=0) - 0.1
     maxs = X.max(axis=0) + 0.1
     xx, yy = np.meshgrid(np.linspace(mins[0], maxs[0], resolution),
@@ -92,7 +97,7 @@ def plot_decision_boundary(clusterer, X, resolution=1000, show_centroids=True,
     Z = Z.reshape(xx.shape)
     #
     plt.contourf(Z, extent=(mins[0], maxs[0], mins[1], maxs[1]),
-                cmap="Pastel2")
+                 cmap="Pastel2")
     plt.contour(Z, extent=(mins[0], maxs[0], mins[1], maxs[1]),
                 linewidths=1, colors='k')
     plot_data(X)
@@ -107,6 +112,7 @@ def plot_decision_boundary(clusterer, X, resolution=1000, show_centroids=True,
         plt.ylabel("$x_2$", fontsize=14, rotation=0)
     else:
         plt.tick_params(labelleft=False)
+
 
 # plt.figure(figsize=(8, 4))
 # plot_decision_boundary(kmeans, X)
@@ -162,6 +168,7 @@ def plot_clusterer_comparison(clusterer1, clusterer2, X, title1=None, title2=Non
     if title2:
         plt.title(title2, fontsize=14)
 
+
 # kmeans_rnd_init1 = KMeans(n_clusters=5, init="random", n_init=1,
 #                          algorithm="full", random_state=11)
 # kmeans_rnd_init2 = KMeans(n_clusters=5, init="random", n_init=1,
@@ -180,19 +187,21 @@ from sklearn.model_selection import train_test_split
 from scipy.io import loadmat
 
 # 导入数据
-mnist = loadmat("mnist-original.mat")
-X = mnist["data"].T
-y = mnist["label"][0]
+# mnist = loadmat("mnist-original.mat")
+# X = mnist["data"].T
+# y = mnist["label"][0]
+#
+# X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=42)
+# filename = 'my_mnist.data'
+# X_mm = np.memmap(filename, dtype='float32', mode='write', shape=X_train.shape)
+# X_mm[:] = X_train
+# minibatch_kmeans = MiniBatchKMeans(n_clusters=10, batch_size=10, random_state=42)
+# minibatch_kmeans.fit(X_mm)
+#
+#
+# def load_next_batch(batch_size):
+#     return X[np.random.choice(len(X), batch_size, replace=False)]
 
-X_train,X_test,y_train,y_test = train_test_split(X,y,random_state=42)
-filename = 'my_mnist.data'
-X_mm = np.memmap(filename,dtype='float32',mode='write',shape=X_train.shape)
-X_mm[:] = X_train
-minibatch_kmeans = MiniBatchKMeans(n_clusters=10,batch_size=10,random_state=42)
-minibatch_kmeans.fit(X_mm)
-
-def load_next_batch(batch_size):
-    return X[np.random.choice(len(X),batch_size,replace=False)]
 
 # np.random.seed(42)
 # k = 5
@@ -222,7 +231,6 @@ def load_next_batch(batch_size):
 #
 # print(best_kmeans.score(X))
 # print(best_kmeans.inertia_)
-
 
 
 from timeit import timeit
@@ -261,7 +269,6 @@ from sklearn.cluster import KMeans
 # plt.show()
 
 
-
 # kmeans_k3 = KMeans(n_clusters=3,random_state=42)
 # kmeans_k4 = KMeans(n_clusters=8,random_state=42)
 #
@@ -293,5 +300,31 @@ from sklearn.cluster import KMeans
 #                      for model in kmeans_per_k[1:]]
 
 from sklearn.metrics import silhouette_samples
-from matplotlib.ticker import FixedFormatter,FixedLocator
+from matplotlib.ticker import FixedFormatter, FixedLocator
 
+# from sklearn.datasets import load_digits
+#
+# X_digits, y_digits = load_digits(return_X_y=True)
+# from sklearn.model_selection import train_test_split
+#
+# X_train, X_test, y_train, y_test = train_test_split(X_digits, y_digits, random_state=42)
+# from sklearn.linear_model import LogisticRegression
+#
+# log_reg =LogisticRegression(multi_class='ovr',solver='lbfgs',random_state=42)
+# log_reg.fit(X_train,y_train)
+# print(log_reg.score(X_test,y_test))
+#
+# from sklearn.pipeline import Pipeline
+# pipeline = Pipeline([
+#     ("kmeans", KMeans(n_clusters=50, random_state=42)),
+#     ("log_reg", LogisticRegression(multi_class="ovr", solver="lbfgs", random_state=42)),
+# ])
+# pipeline.fit(X_train, y_train)
+# print(pipeline.score(X_test, y_test))
+#
+# from sklearn.model_selection import GridSearchCV
+# param_grid = dict(kmeans__n_clusters=range(2,100))
+# grid_clf = GridSearchCV(pipeline,param_grid=param_grid,cv=3,verbose=2)
+# grid_clf.fit(X_train,y_train)
+# print(grid_clf.best_params_)
+# print(grid_clf.best_estimator_.score(X_test,y_test))
