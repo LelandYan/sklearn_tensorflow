@@ -329,65 +329,249 @@ from sklearn.model_selection import GridSearchCV
 # print(grid_clf.best_params_)
 # print(grid_clf.best_estimator_.score(X_test,y_test))
 
-# 取前50个样本进行训练
-n_labeled = 50
-log_reg = LogisticRegression(multi_class='ovr',solver='lbfgs',random_state=42)
-log_reg.fit(X_train[:n_labeled],y_train[:n_labeled])
-res = log_reg.score(X_test,y_test)
-print(res)
-print(X_train.shape)
-# 聚类的中心数 --这里也相当于将10个类别进行分类成了50个
-k = 50
-kmeans = KMeans(n_clusters=k,random_state=42)
-X_digits_dist = kmeans.fit_transform(X_train)
+#取前50个样本进行训练
+# n_labeled = 50
+# log_reg = LogisticRegression(multi_class='ovr',solver='lbfgs',random_state=42)
+# log_reg.fit(X_train[:n_labeled],y_train[:n_labeled])
+# res = log_reg.score(X_test,y_test)
+# print("取前50个原本训练：",res,X_train.shape)
+#
+# # 聚类的中心数 --这里也相当于将10个类别进行分类成了50个
+# k = 50
+# kmeans = KMeans(n_clusters=k,random_state=42)
+# X_digits_dist = kmeans.fit_transform(X_train)
+# print("聚类后数据的形状: ",X_digits_dist.shape)
+# # 这里选择最具有代表性的(最靠近质心的图像)50个，也就是聚类的中心点
+# representative_digit_idx = np.argmin(X_digits_dist,axis=0)
+# print("选取最靠近数据质心的索引：",representative_digit_idx.shape)
+# X_representative_digits = X_train[representative_digit_idx]
+# print("提取后的数据：",X_representative_digits.shape)
+#
+# # 对聚类后的结果进行可视化
+# # plt.figure(figsize=(8, 2))
+# # for index, X_representative_digit in enumerate(X_representative_digits):
+# #     plt.subplot(k // 10, 10, index + 1)
+# #     plt.imshow(X_representative_digit.reshape(8, 8), cmap="binary", interpolation="bilinear")
+# #     plt.axis('off')
+# # plt.show()
+#
+# # 聚类后的图像所对应的标签
+# y_representative_digits = np.array([
+#     4, 8, 0, 6, 8, 3, 7, 7, 9, 2,
+#     5, 5, 8, 5, 2, 1, 2, 9, 6, 1,
+#     1, 6, 9, 0, 8, 3, 0, 7, 4, 1,
+#     6, 5, 2, 4, 1, 8, 6, 3, 9, 2,
+#     4, 2, 9, 4, 7, 6, 2, 3, 1, 1])
+# log_reg = LogisticRegression(multi_class="ovr", solver="lbfgs", random_state=42)
+# log_reg.fit(X_representative_digits, y_representative_digits)
+# res = log_reg.score(X_test, y_test)
+# print("使用聚类的质心的50张图像：",res)
+#
+# # label 数据集 进行标签传播算法
+# y_train_propagated = np.empty(len(X_train), dtype=np.int32)
+# for i in range(k):
+#     # 取聚类后标签为i的样本
+#     y_train_propagated[kmeans.labels_==i] = y_representative_digits[i]
+# log_reg = LogisticRegression(multi_class="ovr", solver="lbfgs", random_state=42)
+# log_reg.fit(X_train, y_train_propagated)
+# print("使用聚类后的50张图片进行标签扩展到整个数据集：",log_reg.score(X_test,y_test))
+#
+#
+# # 标签传播法传播到20%
+# percentile_closest = 20
+# # 按聚类后的标签对聚类后的数据处理
+# X_cluster_dist = X_digits_dist[np.arange(len(X_train)),kmeans.labels_]
+#
+# for i in range(k):
+#     # 取出标签为i的聚类后的X_cluster_dist数据索引
+#     in_cluster = (kmeans.labels_ == i)
+#     cluster_dist = X_cluster_dist[in_cluster]
+#     # 求数据中20%的分位数
+#     cutoff_distance = np.percentile(cluster_dist,percentile_closest)
+#     above_cutoff = (X_cluster_dist > cutoff_distance)
+#     X_cluster_dist[in_cluster & above_cutoff] = -1
+#
+# partially_propagated = (X_cluster_dist != -1)
+# X_train_partially_propagated = X_train[partially_propagated]
+# y_train_partially_propagated = y_train_propagated[partially_propagated]
+#
+# log_reg = LogisticRegression(multi_class="ovr", solver="lbfgs", random_state=42)
+# log_reg.fit(X_train_partially_propagated, y_train_partially_propagated)
+# print("X_train经过聚类处理的数据:",X_train_partially_propagated.shape)
+# res = log_reg.score(X_test, y_test)
+# print("取距离聚类后的质心为20%的数据：",res)
 
-# 这里选择最具有代表性的50个，也就是聚类的中心点
-representative_digit_idx = np.argmin(X_digits_dist,axis=0)
-X_representative_digits = X_train[representative_digit_idx]
+# DBSCAN
+from sklearn.datasets import make_moons
+#
+X,y = make_moons(n_samples=1000,noise=0.05,random_state=42)
+#
+# from sklearn.cluster import DBSCAN
+#
+# dbscan = DBSCAN(eps=0.05,min_samples=5)
+# dbscan.fit(X)
+#
+# dbscan2 = DBSCAN(eps=0.2)
+# dbscan2.fit(X)
+#
+# def plot_dbscan(dbscan, X, size, show_xlabels=True, show_ylabels=True):
+#     core_mask = np.zeros_like(dbscan.labels_,dtype=bool)
+#     core_mask[dbscan.core_sample_indices_] = True
+#     anomalies_mask = dbscan.labels_ == -1
+#     non_core_mask = ~(core_mask | anomalies_mask)
+#
+#     cores = dbscan.components_
+#     anomalies = X[anomalies_mask]
+#     non_cores = X[non_core_mask]
+#
+#     plt.scatter(cores[:, 0], cores[:, 1],
+#                 c=dbscan.labels_[core_mask], marker='o', s=size, cmap="Paired")
+#     plt.scatter(cores[:, 0], cores[:, 1], marker='*', s=20, c=dbscan.labels_[core_mask])
+#     plt.scatter(anomalies[:, 0], anomalies[:, 1],
+#                 c="r", marker="x", s=100)
+#     # plt.scatter(non_cores[:, 0], non_cores[:, 1], c=dbscan.labels_[non_core_mask], marker=".")
+#     if show_xlabels:
+#         plt.xlabel("$x_1$", fontsize=14)
+#     else:
+#         plt.tick_params(labelbottom=False)
+#     if show_ylabels:
+#         plt.ylabel("$x_2$", fontsize=14, rotation=0)
+#     else:
+#         plt.tick_params(labelleft=False)
+#     plt.title("eps={:.2f}, min_samples={}".format(dbscan.eps, dbscan.min_samples), fontsize=14)
+#
+# plt.figure(figsize=(9, 3.2))
+#
+# plt.subplot(121)
+# plot_dbscan(dbscan, X, size=100)
+#
+# plt.subplot(122)
+# plot_dbscan(dbscan2, X, size=600, show_ylabels=False)
+#
+# # plt.show()
+# dbscan = dbscan2
+# from sklearn.neighbors import KNeighborsClassifier
+# knn = KNeighborsClassifier(n_neighbors=50)
+# knn.fit(dbscan.components_,dbscan.labels_[dbscan.core_sample_indices_])
+# X_new = np.array([[-0.5, 0], [0, 0.5], [1, -0.1], [2, 1]])
+# knn.predict(X_new)
 
-# plt.figure(figsize=(8, 2))
-# for index, X_representative_digit in enumerate(X_representative_digits):
-#     plt.subplot(k // 10, 10, index + 1)
-#     plt.imshow(X_representative_digit.reshape(8, 8), cmap="binary", interpolation="bilinear")
-#     plt.axis('off')
-# plt.show()
 
-y_representative_digits = np.array([
-    4, 8, 0, 6, 8, 3, 7, 7, 9, 2,
-    5, 5, 8, 5, 2, 1, 2, 9, 6, 1,
-    1, 6, 9, 0, 8, 3, 0, 7, 4, 1,
-    6, 5, 2, 4, 1, 8, 6, 3, 9, 2,
-    4, 2, 9, 4, 7, 6, 2, 3, 1, 1])
-log_reg = LogisticRegression(multi_class="ovr", solver="lbfgs", random_state=42)
-log_reg.fit(X_representative_digits, y_representative_digits)
-res = log_reg.score(X_test, y_test)
-print(res)
-
-# label 数据集 进行标签传播算法
-y_train_propagated = np.empty(len(X_train), dtype=np.int32)
-print(y_representative_digits)
-for i in range(k):
-    y_train_propagated[kmeans.labels_==i] = y_representative_digits[i]
-log_reg = LogisticRegression(multi_class="ovr", solver="lbfgs", random_state=42)
-log_reg.fit(X_train, y_train_propagated)
-print(log_reg.score(X_test,y_test))
+# Spectral Clustering
+# from sklearn.cluster import SpectralClustering
+# scl = SpectralClustering(n_clusters=2,gamma=100,random_state=42)
+# scl.fit(X)
+# sc2 = SpectralClustering(n_clusters=2,gamma=1,random_state=42)
+# print(np.percentile(scl.affinity_matrix_,95))
 
 
-# 标签传播法传播到20%
-percentile_closest = 20
-X_cluster_dist = X_digits_dist[np.arange(len(X_train)),kmeans.labels_]
-for i in range(k):
-    in_cluster = (kmeans.labels_ == i)
-    cluster_dist = X_cluster_dist[in_cluster]
-    cutoff_distance = np.percentile(cluster_dist,percentile_closest)
-    above_cutoff = (X_cluster_dist > cutoff_distance)
-    X_cluster_dist[in_cluster & above_cutoff] = -1
+def plot_spectral_clustering(sc, X, size, alpha, show_xlabels=True, show_ylabels=True):
+    plt.scatter(X[:, 0], X[:, 1], marker='o', s=size, c='gray', cmap="Paired", alpha=alpha)
+    plt.scatter(X[:, 0], X[:, 1], marker='o', s=30, c='w')
+    plt.scatter(X[:, 0], X[:, 1], marker='.', s=10, c=sc.labels_, cmap="Paired")
 
-partially_propagated = (X_cluster_dist != -1)
-X_train_partially_propagated = X_train[partially_propagated]
-y_train_partially_propagated = y_train_propagated[partially_propagated]
+    if show_xlabels:
+        plt.xlabel("$x_1$", fontsize=14)
+    else:
+        plt.tick_params(labelbottom=False)
+    if show_ylabels:
+        plt.ylabel("$x_2$", fontsize=14, rotation=0)
+    else:
+        plt.tick_params(labelleft=False)
+    plt.title("RBF gamma={}".format(sc.gamma), fontsize=14)
 
-log_reg = LogisticRegression(multi_class="ovr", solver="lbfgs", random_state=42)
-log_reg.fit(X_train_partially_propagated, y_train_partially_propagated)
-res = log_reg.score(X_test, y_test)
-print(res)
+
+# from sklearn.cluster import AgglomerativeClustering
+# X = np.array([0, 2, 5, 8.5]).reshape(-1, 1)
+# agg = AgglomerativeClustering(linkage="complete").fit(X)
+# def learned_parameters(estimator):
+#     return [attrib for attrib in dir(estimator)
+#             if attrib.endswith("_") and not attrib.startswith("_")]
+# agg.children_
+
+X1, y1 = make_blobs(n_samples=1000, centers=((4, -4), (0, 0)), random_state=42)
+print(X1.shape)
+X1 = X1.dot(np.array([[0.374, 0.95], [0.732, 0.598]]))
+X2, y2 = make_blobs(n_samples=250, centers=1, random_state=42)
+X2 = X2 + [6, -8]
+X = np.r_[X1, X2]
+y = np.r_[y1, y2]
+
+from sklearn.mixture import GaussianMixture,BayesianGaussianMixture
+gm = GaussianMixture(n_components=3,n_init=10,random_state=42)
+gm.fit(X)
+print(gm.weights_)
+print(gm.means_)
+print(gm.covariances_)
+# 判断算法时候收敛
+print(gm.converged_)
+# 需要多少次迭代
+print(gm.n_iter_)
+
+bgm = BayesianGaussianMixture(n_components=10, n_init=10, random_state=42)
+bgm.fit(X)
+np.round(bgm.weights_, 2)
+
+from scipy.stats import norm
+xx = np.linspace(-6, 4, 101)
+ss = np.linspace(1, 2, 101)
+XX, SS = np.meshgrid(xx, ss)
+ZZ = 2 * norm.pdf(XX - 1.0, 0, SS) + norm.pdf(XX + 4.0, 0, SS)
+ZZ = ZZ / ZZ.sum(axis=1) / (xx[1] - xx[0])
+from matplotlib.patches import Polygon
+
+plt.figure(figsize=(8, 4.5))
+
+x_idx = 85
+s_idx = 30
+
+plt.subplot(221)
+plt.contourf(XX, SS, ZZ, cmap="GnBu")
+plt.plot([-6, 4], [ss[s_idx], ss[s_idx]], "k-", linewidth=2)
+plt.plot([xx[x_idx], xx[x_idx]], [1, 2], "b-", linewidth=2)
+plt.xlabel(r"$x$")
+plt.ylabel(r"$\theta$", fontsize=14, rotation=0)
+plt.title(r"Model $f(x; \theta)$", fontsize=14)
+
+plt.subplot(222)
+plt.plot(ss, ZZ[:, x_idx], "b-")
+max_idx = np.argmax(ZZ[:, x_idx])
+max_val = np.max(ZZ[:, x_idx])
+plt.plot(ss[max_idx], max_val, "r.")
+plt.plot([ss[max_idx], ss[max_idx]], [0, max_val], "r:")
+plt.plot([0, ss[max_idx]], [max_val, max_val], "r:")
+plt.text(1.01, max_val + 0.005, r"$\hat{L}$", fontsize=14)
+plt.text(ss[max_idx]+ 0.01, 0.055, r"$\hat{\theta}$", fontsize=14)
+plt.text(ss[max_idx]+ 0.01, max_val - 0.012, r"$Max$", fontsize=12)
+plt.axis([1, 2, 0.05, 0.15])
+plt.xlabel(r"$\theta$", fontsize=14)
+plt.grid(True)
+plt.text(1.99, 0.135, r"$=f(x=2.5; \theta)$", fontsize=14, ha="right")
+plt.title(r"Likelihood function $\mathcal{L}(\theta|x=2.5)$", fontsize=14)
+
+plt.subplot(223)
+plt.plot(xx, ZZ[s_idx], "k-")
+plt.axis([-6, 4, 0, 0.25])
+plt.xlabel(r"$x$", fontsize=14)
+plt.grid(True)
+plt.title(r"PDF $f(x; \theta=1.3)$", fontsize=14)
+verts = [(xx[41], 0)] + list(zip(xx[41:81], ZZ[s_idx, 41:81])) + [(xx[80], 0)]
+poly = Polygon(verts, facecolor='0.9', edgecolor='0.5')
+plt.gca().add_patch(poly)
+
+plt.subplot(224)
+plt.plot(ss, np.log(ZZ[:, x_idx]), "b-")
+max_idx = np.argmax(np.log(ZZ[:, x_idx]))
+max_val = np.max(np.log(ZZ[:, x_idx]))
+plt.plot(ss[max_idx], max_val, "r.")
+plt.plot([ss[max_idx], ss[max_idx]], [-5, max_val], "r:")
+plt.plot([0, ss[max_idx]], [max_val, max_val], "r:")
+plt.axis([1, 2, -2.4, -2])
+plt.xlabel(r"$\theta$", fontsize=14)
+plt.text(ss[max_idx]+ 0.01, max_val - 0.05, r"$Max$", fontsize=12)
+plt.text(ss[max_idx]+ 0.01, -2.39, r"$\hat{\theta}$", fontsize=14)
+plt.text(1.01, max_val + 0.02, r"$\log \, \hat{L}$", fontsize=14)
+plt.grid(True)
+plt.title(r"$\log \, \mathcal{L}(\theta|x=2.5)$", fontsize=14)
+
+plt.show()
