@@ -329,18 +329,20 @@ from sklearn.model_selection import GridSearchCV
 # print(grid_clf.best_params_)
 # print(grid_clf.best_estimator_.score(X_test,y_test))
 
+# 取前50个样本进行训练
 n_labeled = 50
 log_reg = LogisticRegression(multi_class='ovr',solver='lbfgs',random_state=42)
 log_reg.fit(X_train[:n_labeled],y_train[:n_labeled])
 res = log_reg.score(X_test,y_test)
 print(res)
+print(X_train.shape)
+# 聚类的中心数 --这里也相当于将10个类别进行分类成了50个
 k = 50
 kmeans = KMeans(n_clusters=k,random_state=42)
 X_digits_dist = kmeans.fit_transform(X_train)
-print(X_train[0])
-print(X_digits_dist[0])
+
+# 这里选择最具有代表性的50个，也就是聚类的中心点
 representative_digit_idx = np.argmin(X_digits_dist,axis=0)
-print(representative_digit_idx)
 X_representative_digits = X_train[representative_digit_idx]
 
 # plt.figure(figsize=(8, 2))
@@ -358,12 +360,34 @@ y_representative_digits = np.array([
     4, 2, 9, 4, 7, 6, 2, 3, 1, 1])
 log_reg = LogisticRegression(multi_class="ovr", solver="lbfgs", random_state=42)
 log_reg.fit(X_representative_digits, y_representative_digits)
-log_reg.score(X_test, y_test)
+res = log_reg.score(X_test, y_test)
+print(res)
 
-
-# label 数据集
+# label 数据集 进行标签传播算法
 y_train_propagated = np.empty(len(X_train), dtype=np.int32)
+print(y_representative_digits)
 for i in range(k):
     y_train_propagated[kmeans.labels_==i] = y_representative_digits[i]
 log_reg = LogisticRegression(multi_class="ovr", solver="lbfgs", random_state=42)
 log_reg.fit(X_train, y_train_propagated)
+print(log_reg.score(X_test,y_test))
+
+
+# 标签传播法传播到20%
+percentile_closest = 20
+X_cluster_dist = X_digits_dist[np.arange(len(X_train)),kmeans.labels_]
+for i in range(k):
+    in_cluster = (kmeans.labels_ == i)
+    cluster_dist = X_cluster_dist[in_cluster]
+    cutoff_distance = np.percentile(cluster_dist,percentile_closest)
+    above_cutoff = (X_cluster_dist > cutoff_distance)
+    X_cluster_dist[in_cluster & above_cutoff] = -1
+
+partially_propagated = (X_cluster_dist != -1)
+X_train_partially_propagated = X_train[partially_propagated]
+y_train_partially_propagated = y_train_propagated[partially_propagated]
+
+log_reg = LogisticRegression(multi_class="ovr", solver="lbfgs", random_state=42)
+log_reg.fit(X_train_partially_propagated, y_train_partially_propagated)
+res = log_reg.score(X_test, y_test)
+print(res)
