@@ -63,7 +63,7 @@ from sklearn.manifold import LocallyLinearEmbedding
 # isomap = Isomap(n_components=2)
 # X_reduced_isomap = isomap.fit_transform(X)
 #
-# from sklearn.manifold import TSNE
+from sklearn.manifold import TSNE
 #
 # tsne = TSNE(n_components=2, random_state=42)
 # X_reduced_tsne = tsne.fit_transform(X)
