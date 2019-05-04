@@ -89,7 +89,9 @@ class bicluster:
 def printclust(clust, labels=None, n=0):
     # indent to make a hierarchy layout
     for i in range(n):
-        print(" ")
+        pass
+        # 这里的pycharm不能运行，需要在命令行中运行
+        # print(" ",end="")
     if clust.id < 0:
         # negative id means that this is branch
         print('-')
@@ -187,14 +189,51 @@ import random
 
 
 def kcluster(rows, distance=pearson, k=4):
+    # 确定每个点的最小值和最大值
     ranges = [(min([row[i] for row in rows]), max([row[i] for row in rows])) for i in range(len(rows[0]))]
+
+    # 随机创建k个中心
+    clusters = [[random.random() * (ranges[i][1] - ranges[i][0]) + ranges[i][0] for i in range(len(rows[0]))] for j in
+                range(k)]
+    lastmatches = None
+    for t in range(100):
+        print("Iteration {}".format(t))
+        bestmatches = [[] for i in range(k)]
+
+        # Find which centroid is the closest for each row
+        for j in range(len(rows)):
+            row = rows[j]
+            bestmatch = 0
+            for i in range(k):
+                d = distance(clusters[i], row)
+                if d < distance(clusters[bestmatch], row): bestmatch = i
+            bestmatches[bestmatch].append(j)
+
+        # If the results are the same as last time, this is complete
+        if bestmatches == lastmatches: break
+        lastmatches = bestmatches
+
+        # Move the centroids to the average of their members
+        for i in range(k):
+            avgs = [0.0] * len(rows[0])
+            if len(bestmatches[i]) > 0:
+                for rowid in bestmatches[i]:
+                    for m in range(len(rows[rowid])):
+                        avgs[m] += rows[rowid][m]
+                for j in range(len(avgs)):
+                    avgs[j] /= len(bestmatches[i])
+                clusters[i] = avgs
+
+    return bestmatches
 
 
 if __name__ == '__main__':
     blognames, words, data = readfile('blogdata.txt')
     clust = hcluster(data)
-    # printclust(clust,labels=blognames)
+    printclust(clust,labels=blognames)
     # drawdendrogram(clust, blognames, jpeg='blogclust.jpg')
-    rdata = rotatematrix(data)
-    wordclust = hcluster(rdata)
-    drawdendrogram(wordclust, labels=words, jpeg='wordclust.jpg')
+    # rdata = rotatematrix(data)
+    # wordclust = hcluster(rdata)
+    # drawdendrogram(wordclust, labels=words, jpeg='wordclust.jpg')
+    # kclust = kcluster(data,k=10)
+    # print([blognames[r] for r in kclust[1]])

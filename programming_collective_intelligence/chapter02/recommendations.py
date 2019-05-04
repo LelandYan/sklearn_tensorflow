@@ -106,6 +106,10 @@ def getRecommendations(prefs, person, similarity=sim_pearson):
     return rankings
 
 
+# 根据用户的评分来对用户进行电影的推荐
+# print(getRecommendations(critics,'Toby'))
+# print(getRecommendations(critics,'Toby',similarity=sim_distance))
+
 # 物品的相似度
 def transformPrefs(prefs):
     result = {}
@@ -117,10 +121,9 @@ def transformPrefs(prefs):
     return result
 
 
-movies = transformPrefs(critics)
+# movies = transformPrefs(critics)
+# print(topMatches(movies, 'Just My Luck'))
 
-
-# print(topMatches(movies,'Superman Returns'))
 def calculateSimilarItems(prefs, n=10):
     result = {}
 
@@ -134,8 +137,8 @@ def calculateSimilarItems(prefs, n=10):
     return result
 
 
-itemsim = calculateSimilarItems(critics)
-
+# itemsim = calculateSimilarItems(critics)
+# print(itemsim)
 
 # for key,value in itemsim.items():
 #     print(key," ",value)
@@ -159,21 +162,32 @@ def getRecommendedItems(prefs, itemMatch, user):
     return rankings
 
 
-# print(getRecommendedItems(critics,itemsim,'Toby'))
-def loadMovieLens(path='/data/movielens'):
+itemsim = calculateSimilarItems(critics)
+print(getRecommendedItems(critics, itemsim, 'Toby'))
+
+
+def loadMovieLens(path=r'./data'):
     movies = {}
-    for line in open(path + "/u.item"):
+    for line in open("u.item"):
         (ids, title) = line.split('|')[0:2]
         movies[ids] = title
 
     prefs = {}
-    for line in open(path, '/u.data'):
+    for line in open('u.data'):
         (user, movieid, rating, ts) = line.split('\t')
         prefs.setdefault(user, {})
         prefs[user][movies[movieid]] = float(rating)
     return prefs
 
+
 prefs = loadMovieLens()
-getRecommendations(prefs,'87')[0:30]
-itemsim = calculateSimilarItems(prefs,n=50)
-getRecommendedItems(prefs,itemsim,'87')[0:30]
+print(prefs['87'])
+# getRecommendations(prefs,'87')[0:30]
+itemsim = calculateSimilarItems(prefs, n=50)
+print(itemsim)
+
+
+# getRecommendedItems(prefs,itemsim,'87')[0:30]
+def tanimoto(a, b):
+    c = [v for v in a if v in b]
+    return float(len(c)) / (len(a) + len(b) - len(c))
