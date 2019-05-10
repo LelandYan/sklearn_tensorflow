@@ -171,7 +171,10 @@ def geneticoptimize(domain,costf,popsize=50,step=1,mutprob=0.2,elite=0.2,maxiter
     # 每一代中有多少胜出者
     topelite = int(elite*popsize)
     for i in range(maxiter):
-        scores = [(costf(v),v) for v in pop]
+        try:
+            scores = [(costf(v), v) for v in pop]
+        except:
+            pass
         scores.sort()
         ranked = [v for (s,v) in scores]
 
