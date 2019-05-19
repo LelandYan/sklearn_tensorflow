@@ -52,7 +52,7 @@ class crawler:
                 "insert into wordlocation(urlid,wordid,location) values ({},{},{})".format(urlid, wordid, i))
 
     # 从一个HTML网页中提取文字（不带标签）
-    def gettextonly(self, soup):
+    def gettextonly(self,  soup):
         v = soup.string
         if v == None:
             c = soup.contents
