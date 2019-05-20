@@ -5,18 +5,17 @@ __date__ = '2019/5/20 20:32'
 import sys
 
 
-def readBothFile(inFile, outFile, twitterFollower, twitterLike):
+def readBothFile(inFile, outFile, twitterLike):
     fout = open(outFile, "w")
     fin = open(inFile, encoding='utf-8')  # findBothFacebookTwitterAll
     for current in fin:
         current = current.replace('\n', '')
         curL = current.split('\t')
         twitter = curL[0]
-        # follower = curL[1]
+        follower = curL[1]
         facebook = curL[2]
-        likes = curL[3]
-        if (twitter in twitterFollower) and (facebook in twitterLike):
-            follower = twitterFollower[twitter]
+        # likes = curL[3]
+        if (facebook in twitterLike):
             likes = twitterLike[facebook]
             fout.write(twitter + '\t' + follower + '\t' + facebook + '\t' + likes + '\n')
 
@@ -40,6 +39,8 @@ def extractFollower(inFile2, twitterFollower):
         follower = curL[7]
         if (not userId in twitterFollower):
             twitterFollower[userId] = follower
+        if (not screenName in twitterFollower):
+            twitterFollower[screenName] = follower
     print('twitterFollower is done:' + str(len(twitterFollower)))
 
 
@@ -57,27 +58,33 @@ def extractLikes(inFile3, twitterLikes):
         data = current[4:-5]
         data = data.replace('\n', '')
         curL = data.split(columnMark)
-        facebookID = curL[1]
+        userId = curL[0]
+        userName = curL[1]
         like = curL[2]
-        if (not facebookID in twitterLikes):
-            twitterLikes[facebookID] = like
+        if (not userId in twitterLikes):
+            twitterLikes[userId] = like
+        if (not userName in twitterLikes):
+            twitterLikes[userName] = like
     print('twitterLike is done:' + str(len(twitterLikes)))
 
 
 def main(argv):
     inFile = argv[1]  # findBothFacebookTwitterAll
-    inFile2 = argv[2]  # TwitterUserProfile
-    inFile3 = argv[3]  # FacebookUserProfile
-    outFile = argv[4]  # ExtractFollowerLikesExample2
+    inFile2 = argv[2]  # FacebookUserProfile
+    outFile = argv[3]  # ExtractFollowerLikesExample2
+    # inFile = "findBothFacebookTwitterAll"
+    # inFile2 = "FacebookUserProfile"
+    # outFile = "ExtractFollowerLikesExample2"
 
     # twitterFacebook = {} # twitterFacebook[twitterAccount + facebookAccount] = [#followr, #likes, Url]
-    twitterFollower = {}  # twitterFollower[user] = #followr
+    # twitterFollower = {}  # twitterFollower[user] = #followr
     twitterLike = {}
-    extractFollower(inFile2, twitterFollower)
-    extractLikes(inFile3, twitterLike)
-    readBothFile(inFile, outFile, twitterFollower, twitterLike)
+    #extractFollower(inFile2, twitterFollower)
+    extractLikes(inFile2, twitterLike)
+    readBothFile(inFile, outFile, twitterLike)
 
 
 if __name__ == "__main__":
     # ִmain fuction
     main(sys.argv)
+    # main(1)
