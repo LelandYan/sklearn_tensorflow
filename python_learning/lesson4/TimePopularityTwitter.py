@@ -30,6 +30,7 @@ def readFile(inFile2, TwitterData, TwitterSelectUser):
         dataArray = data.split('|::|')
 
         userID = dataArray[0]
+
         if (not userID in TwitterSelectUser):
             continue
         originalTime = datetime.datetime.strptime(dataArray[5], "%Y-%m-%d %H:%M:%S")
@@ -56,7 +57,8 @@ def writeFile(inFile2, TwitterSelectUser, outFile):
     columnMark = '|::|'
     rowMark = '|;;|\n'
     count = 0
-    res = {i:[0 for _ in range(3)] for i in range(24)}
+    res = {i: [0 for _ in range(3)] for i in range(24)}
+    res2 = {i:0 for i in range(24)}
     for current in fin:
         count += 1
         if not (current[0:4] == columnMark and current[-5:] == rowMark):
@@ -67,6 +69,7 @@ def writeFile(inFile2, TwitterSelectUser, outFile):
         dataArray = data.split('|::|')
 
         userID = dataArray[0]
+        n = dataArray[2]
         if (not userID in TwitterSelectUser):
             continue
 
@@ -75,38 +78,46 @@ def writeFile(inFile2, TwitterSelectUser, outFile):
             hours=TwitterSelectUser[userID])  # ---------------------timezone----adjuct----------------
         adjustTimeStr = adjustTime.strftime("%Y-%m-%d %H:%M:%S")
         created_time = datetime.datetime.strptime(adjustTimeStr, "%Y-%m-%d %H:%M:%S")
-        
+
         (whichWeek, fmaTime) = formatTime(created_time)
         res[fmaTime][whichWeek] += 1
+
+        res2[fmaTime] += int(n)
+    cnt = 0
     with open(outFile, 'w') as f:
-        for key,lists in res.items():
-            f.write(str(key+1))
+        for key, lists in res.items():
+            f.write(str(key + 1))
             for click in lists:
-                    f.write("\t"+str(click))
+                f.write("\t" + str(click/res2[cnt]))
+            cnt += 1
             f.write("\n")
+
 
 def formatTime(created_time):  # 2016-03-28 21:47:01 output: 121
     day = created_time.isoweekday()
     if (day >= 1 and day <= 5):
         day = 0
-    elif(day == 6):
+    elif (day == 6):
         day = 1
     elif (day == 7):
         day = 2
     timeTwo = str(created_time)[11:13]
     if str(created_time)[11:13] == "00" or str(created_time)[11:13] == "0":
         timeTwo = "24"
-    return (day, int(timeTwo)-1)
+    return (day, int(timeTwo) - 1)
+
 
 def printTime(beginTime):
-    endTime = datetime.datetime.now() #calculate time
-    print ("------------consumed-----------time-----------begin-----------")
-    print ("consumed time:" + str(endTime - beginTime) )
-    print ("------------consumed-----------time-----------end-------------")
+    endTime = datetime.datetime.now()  # calculate time
+    print("------------consumed-----------time-----------begin-----------")
+    print("consumed time:" + str(endTime - beginTime))
+    print("------------consumed-----------time-----------end-------------")
+
+
 def main(argv):
     inFile = argv[1]  # IdentifySameUserTendUrl
-    inFile2 = argv[2] # FormatTwitterTweets
-    outFile = argv[3] # TimePopularityTwitter
+    inFile2 = argv[2]  # FormatTwitterTweets
+    outFile = argv[3]  # TimePopularityTwitter
     # inFile = "IdentifySameUserTendUrl"
     # inFile2 = "FormatTwitterTweets"
     # outFile = "TimePopularityTwitter"
@@ -127,6 +138,7 @@ def main(argv):
     printTime(beginTime)
     print('\a')
     print('finish')
+
 
 if __name__ == '__main__':
     main(sys.argv)
