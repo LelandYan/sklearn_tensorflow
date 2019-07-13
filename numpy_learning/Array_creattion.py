@@ -3,10 +3,10 @@ __author__ = 'LelandYan'
 __date__ = '2019/6/4 18:40'
 
 import numpy as np
-
+import os
+import pandas as pd
 # Create a new array of 2 * 2integers
 print(np.empty([2,2]),int)
-
 
 # empty_like函数
 X = np.array([[1,2,3],[4,5,6]],np.int32)
