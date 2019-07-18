@@ -14,14 +14,28 @@ from scipy.sparse import dok_matrix
 #     plt.show()
 
 
-train = dok_matrix((4,5))
-train[1,3] = 1
-train[2,3] = 1
-train[0,3] = 1
-tmp = train.tocoo()
-print(train.toarray())
-print(train[0])
-print(list(tmp.col.reshape(-1)))
-print(list(tmp.row.reshape(-1)))
+# train = dok_matrix((4,5))
+# train[1,3] = 1
+# train[2,3] = 1
+# train[0,3] = 1
+# tmp = train.tocoo()
+# print(train.toarray())
+# print(train[0])
+# print(list(tmp.col.reshape(-1)))
+# print(list(tmp.row.reshape(-1)))
+import time
+def showtime(func):
+    def wrapper():
+        start_time = time.time()
+        func()
+        end_time = time.time()
+        print('spend is {}'.format(end_time - start_time))
 
+    return wrapper
 
+@showtime  #foo = showtime(foo)
+def foo():
+    print('foo..')
+    time.sleep(3)
+
+foo()
